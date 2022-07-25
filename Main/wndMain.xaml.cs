@@ -23,5 +23,12 @@ namespace GroupProject.Main
         {
             InitializeComponent();
         }
+
+        // After search window is closed, check property SelectedInvoiceID in the
+        // Search Window to see if an invoice is selected.  If so, load the invoice
+
+
+
+        
     }
 }

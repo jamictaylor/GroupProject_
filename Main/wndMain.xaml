@@ -6,7 +6,15 @@
         xmlns:local="clr-namespace:GroupProject.Main"
         mc:Ignorable="d"
         Title="wndMain" Height="450" Width="800">
+    
     <Grid>
-        
+        <Canvas Margin="0, 0, 0, 0">
+            <Menu>
+                <MenuItem Header="Search"/>
+            </Menu>
+
+        </Canvas >
+
+
     </Grid>
 </Window>
