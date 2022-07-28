@@ -7,6 +7,12 @@
         mc:Ignorable="d"
         Title="wndSearch" Height="450" Width="800">
     <Grid>
-        
+        <DataGrid x:Name="datagridInvoices" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,0,0,217" CanUserDeleteRows="False" CanUserAddRows="False" IsReadOnly="True"/>
+        <ComboBox x:Name="comboInvoiceID" HorizontalAlignment="Left" Margin="75,286,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comboInvoiceID_SelectionChanged"/>
+        <ComboBox x:Name="comboInvoiceDate" HorizontalAlignment="Center" Margin="0,286,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comboInvoiceDate_SelectionChanged"/>
+        <ComboBox x:Name="comboInvoiceAmount" HorizontalAlignment="Left" Margin="605,286,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comboInvoiceAmount_SelectionChanged"/>
+        <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Left" Margin="270,372,0,0" VerticalAlignment="Top" FontSize="20" Click="btnCancel_Click"/>
+        <Button x:Name="btnSelect" Content="Select" HorizontalAlignment="Left" Margin="470,372,0,0" VerticalAlignment="Top" FontSize="20" Click="btnSelect_Click"/>
+
     </Grid>
 </Window>

@@ -55,7 +55,7 @@ namespace GroupProject.Common
         {
             try
             {
-                // return the flightNumber and Aircraft type to be displayed in combobox
+                // return the Item code and description type to be displayed in combobox
                 return ItemCode + " - " + Description;
             }
             catch (Exception ex)
