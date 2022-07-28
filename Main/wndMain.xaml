@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="" Height="750" Width="600" >
     <Grid>
-        <Canvas Background="Gainsboro"  Margin="0, 0, 0, 0">
+        <Canvas Background="LightGray"  Margin="0, 0, 0, 0">
             <Menu>
                 <MenuItem Header="Search" FontSize="14" FontWeight="Normal" Margin="4,4,4,4" Click="MenuItem_Click"/>
             </Menu>
@@ -17,7 +17,7 @@
             <Label Content="Create a New Invoice or Search for an existing Invoice to view or edit." Canvas.Left="116" Canvas.Top="50" HorizontalAlignment="Center" VerticalAlignment="Top" FontStyle="Italic"/>
 
             <!--New Invoice: Will Display Canvas -->
-            <Button x:Name="btnNewInvoice" Background="DimGray" BorderBrush="Black" BorderThickness="1"  Content="+ New Invoice" Canvas.Left="420" Canvas.Top="95" Height="28" Width="100" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnInvoice_Click"/>
+            <Button x:Name="btnNewInvoice" Content="+ New Invoice" Canvas.Left="420" Canvas.Top="95" Height="28" Width="100" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnInvoice_Click"/>
 
 
             <!-- Canvas is visible when 'New Invoice' is selected or a search was done for an invoice -->
@@ -27,7 +27,7 @@
                 </Canvas.Effect>
 
                 <!-- Edit Invoice button only visible if invoice has already been created  -->
-                <Button x:Name="btnEditInvoice" Visibility="Collapsed"  Background="DimGray" BorderBrush="Black" BorderThickness="1"  Content="Edit Invoice" Canvas.Left="21" Canvas.Top="30" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" Foreground="White" FontWeight="Bold" RenderTransformOrigin="1.02,0.841" Click="btnEditInvoice_Click"/>
+                <Button x:Name="btnEditInvoice" Visibility="Collapsed" Content="Edit Invoice" Canvas.Left="21" Canvas.Top="30" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" RenderTransformOrigin="1.02,0.841" Click="btnEditInvoice_Click"/>
 
                 <!--Invoice Number & Date -->
                 <Label x:Name="lblInvoiceNumber" Content="Invoice Number:" Canvas.Left="199" Canvas.Top="23" HorizontalAlignment="Left" VerticalAlignment="Top"/>
@@ -52,7 +52,7 @@
                 <TextBox x:Name="txtboxCost" Canvas.Left="96" TextWrapping="Wrap" Text="" IsReadOnly="True" Canvas.Top="173" Width="120" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
                 <!--Save-->
-                <Button x:Name="btnSaveInvoice" Content="Save Invoice" Background="DimGray" BorderBrush="Black" BorderThickness="1" Canvas.Left="171" Canvas.Top="500" Height="28" Width="100" Foreground="White" FontWeight="Bold" RenderTransformOrigin="1.02,0.841" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnSaveInvoice_Click"/>
+                <Button x:Name="btnSaveInvoice" Content="Save Invoice" Canvas.Left="171" Canvas.Top="500" Height="28" Width="100" RenderTransformOrigin="1.02,0.841" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnSaveInvoice_Click"/>
 
             </Canvas>
 

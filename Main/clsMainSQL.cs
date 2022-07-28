@@ -27,7 +27,7 @@ namespace GroupProject.Main
         {
             try
             {
-                string sSQL = "INSERT INTO LineItems (InvoiceNum, LineItemNum, ItemCode) Values (123, 1, 'AA')";
+                string sSQL = "INSERT INTO LineItems (InvoiceNum, LineItemNum, ItemCode) Values (" + InvoiceNum + ", " + LineItemNum + ", "+ ItemCode + ")";
                 return sSQL;
             }
             catch (Exception ex)
@@ -37,11 +37,11 @@ namespace GroupProject.Main
             }
         }
 
-        public static string InsertInvoice(string InvoiceNum, string LineItemNum, string ItemCode)
+        public static string InsertInvoice(string InvoiceDate, string TotalCost)
         {
             try
             {
-                string sSQL = "INSERT INTO Invoices (InvoiceDate, TotalCost) Values (#4/13/2018#, 100)";
+                string sSQL = "INSERT INTO Invoices (InvoiceDate, TotalCost) Values (#" + InvoiceDate + "# , " + TotalCost + ")";
                 return sSQL;
             }
             catch (Exception ex)
@@ -71,7 +71,12 @@ namespace GroupProject.Main
             }
         }
 
-        public static string GetItems()
+        /// <summary>
+        /// SQL method that will execute the retrieval of all of the attributes fromt eh ItemDesc table
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static string GetItemDesc()
         {
             try
             {
@@ -86,5 +91,21 @@ namespace GroupProject.Main
         }
 
 
+        public static string getItemsFromInvoice(string ItemCode, string InvoiceNum)
+        {
+            try
+            {
+                string sSQL = "SELECT LineItems.ItemCode, ItemDesc.ItemDesc, ItemDesc.Cost " +
+                                "FROM LineItems, ItemDesc " +
+                                "WHERE LineItems.ItemCode = " + ItemCode +
+                                 "AND LineItems.InvoiceNum = " + InvoiceNum;
+                return sSQL;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "."
+                                    + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+            }
+        }
     }
 }

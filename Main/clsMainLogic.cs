@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace GroupProject.Main
 {
+
     /// <summary>
     /// Business logic for the Main Window
     /// </summary>
@@ -14,6 +15,22 @@ namespace GroupProject.Main
     {
         // create an object to reference the list of items from clsItem
         public List<Common.clsItem> items;
+
+        /// <summary>
+        /// invoice class
+        /// </summary>
+        Common.clsInvoice invoice;
+
+        /// <summary>
+        /// constructor for Main Logic
+        /// </summary>
+        public clsMainLogic()
+        {
+            // instantiate the clsInvoice class
+            invoice = new Common.clsInvoice();
+
+        }
+
 
         /// <summary>
         /// Method to get the items that the UI will call on for the combobox
@@ -34,7 +51,7 @@ namespace GroupProject.Main
             items = new List<Common.clsItem>();
 
             // use the data access class in order to execute a SQL statement
-            ds = db.ExecuteSQLStatement(clsMainSQL.GetItems(), ref iRet);
+            ds = db.ExecuteSQLStatement(clsMainSQL.GetItemDesc(), ref iRet);
 
             // loop through the dataset.  For each row, creat a new clsItem, fill it up and add List of Items
             foreach (DataRow dr in ds.Tables[0].Rows)
@@ -56,6 +73,7 @@ namespace GroupProject.Main
 
             }
 
+            
             // return this list
             return items;
         }
@@ -83,9 +101,10 @@ namespace GroupProject.Main
 
     // Get the invoice and items for the selected invoice from search window
     //GetInvoice(InvoiceNumber) returns clsInvoice
-   // private clsInvoice GetInvoice(InvoiceNumber)
-   // {
-
+  //  private List<Invoice> GetInvoice(string sInvoiceNumber)
+ //   {
+        
+  //      return clsInvoice;
   //  }
 
 
