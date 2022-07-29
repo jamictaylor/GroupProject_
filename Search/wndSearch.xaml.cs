@@ -108,6 +108,13 @@ namespace GroupProject.Search
             try
             {
                 //Get invoice id of the selected row. pass the id to a variable that the main window can access then hide the window
+
+                Main.wndMain wndMain = new Main.wndMain();
+
+                wndMain.GetSelection("5000");
+
+                
+                
                 this.Hide();
             }
             catch(Exception ex)

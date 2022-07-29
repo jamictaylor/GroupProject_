@@ -23,11 +23,12 @@ namespace GroupProject.Main
             }
         }
 
-        public static string InsertItem(string InvoiceNum, string LineItemNum, string ItemCode)
+        public static string InsertLineItems(string InvoiceNum, string LineItemNum, string ItemCode)
         {
             try
             {
-                string sSQL = "INSERT INTO LineItems (InvoiceNum, LineItemNum, ItemCode) Values (" + InvoiceNum + ", " + LineItemNum + ", "+ ItemCode + ")";
+                string sSQL = "INSERT INTO LineItems (InvoiceNum, LineItemNum, ItemCode) " +
+                                "VALUES (" + InvoiceNum + ", " + LineItemNum + ", "+ ItemCode + ")";
                 return sSQL;
             }
             catch (Exception ex)
@@ -41,7 +42,8 @@ namespace GroupProject.Main
         {
             try
             {
-                string sSQL = "INSERT INTO Invoices (InvoiceDate, TotalCost) Values (#" + InvoiceDate + "# , " + TotalCost + ")";
+                string sSQL = "INSERT INTO Invoices (InvoiceDate, TotalCost) " +
+                                "VALUES (#" + InvoiceDate + "# , " + TotalCost + ")";
                 return sSQL;
             }
             catch (Exception ex)
@@ -52,7 +54,7 @@ namespace GroupProject.Main
         }
 
         /// <summary>
-        /// Method to execute the SQL statement to select the Invoice Number, Invoice Date and Total Cost
+        /// Method to select the Invoice Number, Invoice Date and Total Cost that matches given invoice number
         /// </summary>
         /// <param name="InvoiceNum"></param>
         /// <returns></returns>
@@ -61,7 +63,9 @@ namespace GroupProject.Main
         {
             try
             {
-                string sSQL = "SELECT InvoiceNum, InvoiceDate, TotalCost FROM Invoices WHERE InvoiceNum = " + InvoiceNum;
+                string sSQL = "SELECT InvoiceNum, InvoiceDate, TotalCost " +
+                                "FROM Invoices " +
+                                "WHERE InvoiceNum = " + InvoiceNum;
                 return sSQL;
             }
             catch (Exception ex)
@@ -72,7 +76,7 @@ namespace GroupProject.Main
         }
 
         /// <summary>
-        /// SQL method that will execute the retrieval of all of the attributes fromt eh ItemDesc table
+        /// SQL method that will execute the retrieval of all of the attributes from the ItemDesc table
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
@@ -80,7 +84,8 @@ namespace GroupProject.Main
         {
             try
             {
-                string sSQL = "SELECT ItemCode, ItemDesc, Cost from ItemDesc";
+                string sSQL = "SELECT ItemCode, ItemDesc, Cost " +
+                                "FROM ItemDesc";
                 return sSQL;
             }
             catch (Exception ex)
@@ -90,8 +95,14 @@ namespace GroupProject.Main
             }
         }
 
-
-        public static string getItemsFromInvoice(string ItemCode, string InvoiceNum)
+        /// <summary>
+        /// get items from code and inventory number combined to load datagrid table
+        /// </summary>
+        /// <param name="ItemCode"></param>
+        /// <param name="InvoiceNum"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static string getItemsFromCodeAndInvNum(string ItemCode, string InvoiceNum)
         {
             try
             {
@@ -99,6 +110,27 @@ namespace GroupProject.Main
                                 "FROM LineItems, ItemDesc " +
                                 "WHERE LineItems.ItemCode = " + ItemCode +
                                  "AND LineItems.InvoiceNum = " + InvoiceNum;
+                return sSQL;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "."
+                                    + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// get max invoice number
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static string GetMaxInvoiceNum()
+        {
+            try
+            {
+                string sSQL = "SELECT MAX(InvoiceNum)" +
+                                "FROM Invoices";
+                       
                 return sSQL;
             }
             catch (Exception ex)

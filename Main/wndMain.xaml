@@ -15,25 +15,27 @@
             <!--Company Name & Instructions-->
             <TextBlock x:Name="txtCompanyName" Canvas.Left="122" TextWrapping="Wrap" Text="Jewelry Store" Canvas.Top="29" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <Label Content="Create a New Invoice or Search for an existing Invoice to view or edit." Canvas.Left="116" Canvas.Top="50" HorizontalAlignment="Center" VerticalAlignment="Top" FontStyle="Italic"/>
+            <Label x:Name="MessageLabel" Content="" Canvas.Left="94" Canvas.Top="111" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
             <!--New Invoice: Will Display Canvas -->
             <Button x:Name="btnNewInvoice" Content="+ New Invoice" Canvas.Left="420" Canvas.Top="95" Height="28" Width="100" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnInvoice_Click"/>
 
 
             <!-- Canvas is visible when 'New Invoice' is selected or a search was done for an invoice -->
-            <Canvas Background="White"  x:Name="canvasInvoice" Visibility="Collapsed" Height="550" Width="440" Canvas.Left="80" Canvas.Top="136" HorizontalAlignment="Center" VerticalAlignment="Top"  >
+            <Canvas Background="White"  x:Name="canvasInvoice" Visibility="Visible" Height="550" Width="440" Canvas.Left="94" Canvas.Top="142" HorizontalAlignment="Left" VerticalAlignment="Top"  >
                 <Canvas.Effect>
                     <DropShadowEffect/>
                 </Canvas.Effect>
 
                 <!-- Edit Invoice button only visible if invoice has already been created  -->
-                <Button x:Name="btnEditInvoice" Visibility="Collapsed" Content="Edit Invoice" Canvas.Left="21" Canvas.Top="30" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" RenderTransformOrigin="1.02,0.841" Click="btnEditInvoice_Click"/>
+                <Button x:Name="btnEditInvoice" Visibility="Collapsed" Content="Edit Invoice" Canvas.Left="21" Canvas.Top="30" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" Click="btnEditInvoice_Click"/>
 
                 <!--Invoice Number & Date -->
                 <Label x:Name="lblInvoiceNumber" Content="Invoice Number:" Canvas.Left="199" Canvas.Top="23" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <Label x:Name="lblInvoiceDate" Content="Invoice Date:" Canvas.Left="210" Canvas.Top="60" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <TextBox x:Name="txtboxInvoiceNumber" Canvas.Left="298" TextWrapping="Wrap" Text="" Canvas.Top="27" Width="120"/>
-                <TextBox x:Name="txtboxInvoiceDate" Canvas.Left="298" TextWrapping="Wrap" Text="" Canvas.Top="64" Width="120" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <DatePicker x:Name="DatePickerInvoiceDate" Canvas.Left="301" Canvas.Top="62" DisplayDate="2022-07-28" />
+
 
                 <!-- Add or Remove Items -->
                 <GroupBox Height="100" Header="Add or Remove Items" Width="401" HorizontalAlignment="Left" Canvas.Top="104" VerticalAlignment="Center" Canvas.Left="20"/>
@@ -45,14 +47,23 @@
                 <Button x:Name="btRemoveItem" Content="Remove Item" Canvas.Left="306" Canvas.Top="166" Height="25" Width="85" HorizontalAlignment="Left" VerticalAlignment="Center" Click="btRemoveItem_Click"/>
 
                 <!--Invoice Items in Data Grid-->
-                <DataGrid x:Name="InvoiceDataGrid" Height="200" Width="400" d:ItemsSource="{d:SampleData ItemCount=5}" Canvas.Left="21" Canvas.Top="228" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <DataGrid x:Name="InvoiceDataGrid" AutoGenerateColumns="False" Height="200" Width="400" Canvas.Left="21" Canvas.Top="228" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Path=ItemCode}" Header="Item Code" Width="100" IsReadOnly="True" />
+                        <DataGridTextColumn Binding="{Binding Path=Description}" Header="Item Description" Width="200" />
+                        <DataGridTextColumn Binding="{Binding Path=Cost}" Header="Item Cost" Width="100" />
+                    </DataGrid.Columns>
+                </DataGrid>
 
                 <!--Total Cost-->
                 <Label x:Name="lblTotalCost" Content="Total Cost:" Canvas.Left="231" Canvas.Top="442" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <TextBox x:Name="txtboxCost" Canvas.Left="96" TextWrapping="Wrap" Text="" IsReadOnly="True" Canvas.Top="173" Width="120" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtboxCost" Canvas.Left="96" TextWrapping="Wrap" IsReadOnly="True" Canvas.Top="173" Width="120"  HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
 
                 <!--Save-->
-                <Button x:Name="btnSaveInvoice" Content="Save Invoice" Canvas.Left="171" Canvas.Top="500" Height="28" Width="100" RenderTransformOrigin="1.02,0.841" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnSaveInvoice_Click"/>
+                <Button x:Name="btnSaveInvoice" Content="Save Invoice" Canvas.Left="171" Canvas.Top="500" Height="28" Width="100" HorizontalAlignment="Center" VerticalAlignment="Top" Click="btnSaveInvoice_Click"/>
+
+
 
             </Canvas>
 
