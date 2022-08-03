@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -41,18 +42,24 @@ namespace GroupProject.Main
         /// </summary>
         Common.clsItem clsSelectedItem;
 
+        /// <summary>
+        /// create a list to hold the list of items from the UI datagrid to save invoice
+        /// </summary>
+        List<Common.clsItem> clsItems;
+
         #region private variables
-
-        
-
         /// <summary>
         /// variable to hold if cost of item is added or subtracted
         /// </summary>
         private bool bIsNeg = false;
 
+        /// <summary>
+        /// variable to hold if form is in edit mode
+        /// </summary>
+        private bool bIsEditable = false;
         #endregion
-       
 
+        #region public attributes
         /// <summary>
         /// public variable referencing bIsNeg
         /// </summary>
@@ -62,29 +69,43 @@ namespace GroupProject.Main
             set { bIsNeg = value; }
         }
 
-
-        #region public attributes
-
+        /// <summary>
+        /// public variable referencing bIsEditable
+        /// </summary>
+        public bool IsEditable
+        {
+            get { return bIsEditable; }
+            set { bIsEditable = value; }
+        }
         #endregion
 
-
+        /// <summary>
+        /// Constructor for winMain
+        /// </summary>
         public wndMain()
         {
-            InitializeComponent();
-            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            try
+            {
+                InitializeComponent();
+                Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            // instantiate and add a new Search Window
-            wndSearchForm = new Search.wndSearch();
+                // instantiate and add a new Search Window
+                wndSearchForm = new Search.wndSearch();
 
-            // instantiate a new MainLogic class
-            clsMainLogic = new clsMainLogic();
+                // instantiate a new MainLogic class
+                clsMainLogic = new clsMainLogic();
 
-            // instantiate a new sclsDataAccess class
-            db = new clsDataAccess();
+                // instantiate a new sclsDataAccess class
+                db = new clsDataAccess();
 
-            // bind items to its items source property and display in Items combo Box
-            cbChooseItems.ItemsSource = clsMainLogic.GetItemsManager();
-            
+                // bind items to its items source property and display in Items combo Box
+                cbChooseItems.ItemsSource = clsMainLogic.GetItemsManager();
+            }
+            catch (Exception ex)
+            {
+                HandleError(MethodInfo.GetCurrentMethod().DeclaringType.Name,
+                    MethodInfo.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         /// <summary>
@@ -94,14 +115,30 @@ namespace GroupProject.Main
         /// <param name="e"></param>
         private void btnInvoice_Click(object sender, RoutedEventArgs e)
         {
-            // make canvas visible
-            canvasInvoice.Visibility = Visibility.Visible;
+            try
+            {
+                // make canvas visible
+                canvasInvoice.Visibility = Visibility.Visible;
 
-            // Invoice number textbox set to read only
-           // txtboxInvoiceNumber.IsReadOnly = true;
+                // clear the screen from previous user entries
+                ClearScreen();
 
-            // Invoice Number text box to say 'TBD'
-            txtboxInvoiceNumber.Text = "TBD";
+                // ensure buttons are enabled
+                ButtonsEnabled();
+
+                // make sure that invoice is not editable
+                IsEditable = false;
+
+                InvoiceDataGrid.IsReadOnly = true;
+
+                // Invoice Number text box to say 'TBD'
+                txtboxInvoiceNumber.Text = "TBD";
+            }
+            catch (Exception ex)
+            {
+                HandleError(MethodInfo.GetCurrentMethod().DeclaringType.Name,
+                    MethodInfo.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         /// <summary>
@@ -112,34 +149,72 @@ namespace GroupProject.Main
         private void btnSaveInvoice_Click(object sender, RoutedEventArgs e)
         {
             try
-            {
+            {   
                 // confirm there are items listed in the datagrid
-                if(InvoiceDataGrid != null)
-                {
+                if(!InvoiceDataGrid.Items.IsEmpty)
+                { 
                     // confirm date has been added
                     if(DatePickerInvoiceDate.SelectedDate.HasValue)
                     {
+                        // remove message labels
+                        MessageLabel.Content = "";
+                        
                         // save datetime variable
                         clsMainLogic.InvoiceDate = (DateTime)DatePickerInvoiceDate.SelectedDate;
 
-                        // save invoice, get invoice number and then save items associated with invoice
-                        clsMainLogic.SaveNewInvoice(clsMainLogic.InvoiceDate, clsMainLogic.TotalCost);
+                        // instantiate a new clsItems list to hold the items from the datagrid
+                        clsItems = new List<Common.clsItem>();
 
-                        // Lock in the data for viewing only
+                        // loop through the InvoiceDataGrid to load the clsItems list
+                        for(int i = 0; i < InvoiceDataGrid.Items.Count; i++)
+                        {
+                            // new object
+                            Common.clsItem clsItem = new Common.clsItem();
 
+                            // add the datagrid object to the new object
+                            clsItem = (Common.clsItem)InvoiceDataGrid.Items[i];
 
-                        // allow for edit mode
+                            // add the object to the list clsItems
+                            clsItems.Add(clsItem);
+                        }
+                        if(IsEditable == true)  // if this is UPDATING an existing invoice
+                        {
+                            // call update Invoice - pass in current invoice number, invoice date, total cost and list of items
+                            clsMainLogic.UpdateInvoice(txtboxInvoiceNumber.Text ,clsMainLogic.InvoiceDate, clsMainLogic.TotalCost, clsItems);
+
+                            // confirmation message
+                            MessageLabel.Content = "Your invoice has been updated and saved.";
+                        }
+                        else  // if this is saving a new invoice
+                        {
+                            // variable to hold the invoice number that is created
+                            string invoiceNumber;
+
+                            // save invoice, get invoice number and then save items associated with invoice
+                            invoiceNumber = clsMainLogic.SaveNewInvoice(clsMainLogic.InvoiceDate, clsMainLogic.TotalCost, clsItems);
+
+                            // Message that invoice has been savad
+                            MessageLabel.Content = "Your Invoice has been saved as Invoice Number " + invoiceNumber;
+
+                            // Display the new invoice number in invoice text box
+                            txtboxInvoiceNumber.Text = invoiceNumber;
+                        } 
+
+                        // in view mode until user selects Edit or Search.
+                        ViewOnlyMode();
+
                         // make invoice button visable
                         btnEditInvoice.Visibility = Visibility.Visible;
 
+                        // confirm not in edit mode
+                        IsEditable = false;
                     }
-                    // error message if no value
-                    else
+                    else   // error message if no date
                     {
                         MessageLabel.Content = "Enter Date before saving";
                     }
                 }
-                else
+                else // if no items in datagrid
                 {
                     // message label displaying to enter items
                     MessageLabel.Content = "Enter invoice items before saving";
@@ -150,6 +225,46 @@ namespace GroupProject.Main
                 HandleError(MethodInfo.GetCurrentMethod().DeclaringType.Name,
                     MethodInfo.GetCurrentMethod().Name, ex.Message);
             }            
+        }
+
+        /// <summary>
+        /// Method to disale use of all buttons
+        /// </summary>
+        private void ViewOnlyMode()
+        {
+            try
+            {
+                btnAddItem.IsEnabled = false;
+                btRemoveItem.IsEnabled = false;
+                btnSaveInvoice.IsEnabled = false;
+                DatePickerInvoiceDate.IsEnabled = false;
+                cbChooseItems.IsEnabled = false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "."
+                                    + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Method to enable use of all buttons
+        /// </summary>
+        private void ButtonsEnabled()
+        {
+            try
+            {
+                btnAddItem.IsEnabled = true;
+                btRemoveItem.IsEnabled = true;
+                btnSaveInvoice.IsEnabled = true;
+                DatePickerInvoiceDate.IsEnabled = true; ;
+                cbChooseItems.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "."
+                                    + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -164,8 +279,12 @@ namespace GroupProject.Main
                 // variable to hold the selected item
                 clsSelectedItem = (Common.clsItem)cbChooseItems.SelectedItem;
 
-                // Display cost of selected item
-                txtboxCost.Text = clsSelectedItem.Cost;
+                // if item selected was not null
+                if(cbChooseItems.SelectedItem != null)
+                {
+                    // Display cost of selected item
+                    txtboxCost.Text = clsSelectedItem.Cost;
+                }  
             }
             catch (Exception ex)
             {
@@ -183,8 +302,19 @@ namespace GroupProject.Main
         {
             try
             {
+                if(cbChooseItems.SelectedItem == null)
+                {
+                    MessageLabel.Content = "Please enter an item before selecting Add.";
+                    return;
+                }
+
+                // clear message label content
+                MessageLabel.Content = "";
+
                 // add clsSelectedItem to the datagrid
                 InvoiceDataGrid.Items.Add(clsSelectedItem);
+
+                ItemsControl.Equals(clsSelectedItem, true);
 
                 // bool IsNeg should be false to cost is added
                 IsNeg = false;
@@ -208,21 +338,30 @@ namespace GroupProject.Main
         {
             try
             {
-                // If Datagrid is empty, do nothing and return
+                // If Datagrid is empty, give error message and return
                 if (InvoiceDataGrid.SelectedItems.Count == 0)
                 {
+                    MessageLabel.Content = "There are no items to remove.";
                     return;
+                }
+                if(InvoiceDataGrid.SelectedItems == null)
+                {
+                    MessageLabel.Content = "Please select an item to remove";
                 }
                 else // remove item
                 {
-                    // remove the selected datagrid item from the datagrid
-                    InvoiceDataGrid.Items.Remove(InvoiceDataGrid.SelectedItem);
+                    // erase any message labels
+                    MessageLabel.Content = "";
 
                     // bool IsNeg should be false to cost is added
                     IsNeg = true;
 
                     // call method to compute total cost
-                    ComputeTotalCost(clsSelectedItem.Cost, IsNeg);
+                    ComputeTotalCost(((GroupProject.Common.clsItem)InvoiceDataGrid.SelectedItem).Cost, IsNeg);
+
+                    // remove the selected datagrid item from the datagrid
+                    InvoiceDataGrid.Items.Remove(InvoiceDataGrid.SelectedItem);
+
                 }              
             }
             catch (Exception ex)
@@ -239,7 +378,19 @@ namespace GroupProject.Main
         /// <param name="e"></param>
         private void btnEditInvoice_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                // change mode to edit
+                IsEditable = true;
 
+                // enable buttons
+                ButtonsEnabled();
+            }
+            catch (Exception ex)
+            {
+                // top level message to handle the exception
+                HandleError(MethodInfo.GetCurrentMethod().DeclaringType.Name, MethodInfo.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         /// <summary>
@@ -254,13 +405,8 @@ namespace GroupProject.Main
                 // Hide the main window
                 this.Hide();
 
-                
-
                 // Show the add passenger form
                 wndSearchForm.Show();
-
-                // show the main form
-                this.Show();
             }
             catch (Exception ex)
             {
@@ -277,8 +423,7 @@ namespace GroupProject.Main
         {
             try
             {
-                // add cost of all invoice items and provide total
-
+                // variable to hold the cost
                 double confirmedDoubleCost;
 
                 if (double.TryParse(Cost, out confirmedDoubleCost) == true)
@@ -288,8 +433,7 @@ namespace GroupProject.Main
                     {
                         clsMainLogic.TotalCost += confirmedDoubleCost;
                     }
-                    // if cost is negative, subtract from cost
-                    else
+                    else // if cost is negative, subtract from cost
                     {
                         clsMainLogic.TotalCost -= confirmedDoubleCost;
                     }
@@ -297,60 +441,125 @@ namespace GroupProject.Main
 
                 // send total cost to the total cost text box
                 txtBoxTotalCost.Text = clsMainLogic.TotalCost.ToString();
-
             }
             catch (Exception ex)
             {
                 throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "." + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
             }
-            
         }
-        // After search window is closed, check property SelectedInvoiceID in the
-        // Search Window to see if an invoice is selected.  If so, load the invoice
-        //TO DO: NEEDS CODE
+
+        /// <summary>
+        /// Method called when SEARCH WINDOW is closed and Invoice ID has been selected
+        /// </summary>
+        /// <param name="InvoiceNum"></param>
         public void GetSelection(string InvoiceNum)
         {
-            // Clear the window before leaving
-            ClearScreen(); // screen not displaying properly
+            try
+            {
+                if(InvoiceNum != null)
+                {
+                    // show the main form
+                    this.Show();
 
-            // new class
-            Common.clsInvoice clsInvoice = new Common.clsInvoice();
+                    // Clear the window before leaving
+                    ClearScreen(); // screen not displaying properly
 
-            // get invoice
-            clsInvoice = (Common.clsInvoice)clsMainLogic.GetInvoice(InvoiceNum);
+                    // ensure invoice canvas is visable
+                    canvasInvoice.Visibility = Visibility.Visible;
 
-            // display invoice number
-            txtboxInvoiceNumber.Text = clsInvoice.InvoiceNum; // screen not displaying properly
-                
-            // display invoice date
-            DatePickerInvoiceDate.Text = clsInvoice.InvoiceDate; // screen not displaying properly
+                    // Edit Mode is false
+                    IsEditable = false;
 
-            // display total cost
-            txtBoxTotalCost.Text = clsInvoice.TotalCost; // screen not displaying properly
-            
-            // get items connected to invoice
-            
-                
-                // display items in datagrid
+                    // Show Edit Button
+                    btnEditInvoice.Visibility = Visibility.Visible;
 
+                    // displayed invoice is in view only mode
+                    ViewOnlyMode();
 
+                    // new class
+                    Common.clsInvoice clsInvoice = new Common.clsInvoice();
+
+                    // get invoice
+                    clsInvoice = (Common.clsInvoice)clsMainLogic.GetInvoice(InvoiceNum);
+
+                    // display invoice number
+                    txtboxInvoiceNumber.Text = clsInvoice.InvoiceNum;
+
+                    // display invoice date
+                    DatePickerInvoiceDate.Text = clsInvoice.InvoiceDate;
+
+                    // display total cost
+                    txtBoxTotalCost.Text = clsInvoice.TotalCost;
+
+                    // instantiate a new clsItems list to hold the items from the datagrid
+                    clsItems = new List<Common.clsItem>();
+
+                    clsItems = clsMainLogic.GetInvoiceItemsManager(InvoiceNum);
+
+                    // loop through the InvoiceDataGrid to load the clsItems list
+                    for (int i = 0; i < clsItems.Count; i++)
+                    {
+                        // add Item to the datagrid
+                        InvoiceDataGrid.Items.Add(clsItems[i]);
+                    }
+                }
+                else // if invoice number is null, just return
+                {
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "." + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Method to clear all labels and text boxes from screen
+        /// </summary>
         public void ClearScreen()
         {
-            
+            try
+            {
+                // make invoice visable, but blank
+                canvasInvoice.Visibility = Visibility.Visible;
 
-            cbChooseItems.SelectedIndex = 0;
+                // clear the combo box
+                cbChooseItems.Text = null;
 
-            InvoiceDataGrid.BindingGroup = null;
+                // clear the cost text
+                txtboxCost.Text = "";
 
-            txtboxInvoiceNumber.Text = "";
+                // no binding to datagrid
+                InvoiceDataGrid.Items.Clear();
 
-            DatePickerInvoiceDate.SelectedDate = default;
+                // invoice number clear
+                txtboxInvoiceNumber.Text = "";
 
-            txtBoxTotalCost.Text = "";
+                // date set to default
+                DatePickerInvoiceDate.SelectedDate = default;
+
+                // total cost cleared
+                txtBoxTotalCost.Text = "";
+
+                // clear message box
+                MessageLabel.Content = "";
+
+                // no edit button visible
+                btnEditInvoice.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "." + MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+            }   
         }
-
+        
+        /// <summary>
+        /// Method to handle error
+        /// </summary>
+        /// <param name="sClass"></param>
+        /// <param name="sMethod"></param>
+        /// <param name="sMessage"></param>
         public void HandleError(string sClass, string sMethod, string sMessage)
         {
             try
@@ -363,8 +572,5 @@ namespace GroupProject.Main
                 System.IO.File.AppendAllText("C:\\Error.txt", Environment.NewLine + "HandleError Exception: " + ex.Message);
             }
         }
-
-
-
     }
 }
