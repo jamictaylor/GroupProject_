@@ -39,6 +39,10 @@ namespace GroupProject.Search
         /// </summary>
         string comboCost = "0";
         /// <summary>
+        /// Currently displayed dataset
+        /// </summary>
+        DataSet currDS;
+        /// <summary>
         /// Constuctor for the search window
         /// </summary>
         public wndSearch()
@@ -52,6 +56,7 @@ namespace GroupProject.Search
                 comboInvoiceAmount.ItemsSource = clsSearchLogic.GetCostCombo();
                 comboInvoiceDate.ItemsSource = clsSearchLogic.GetDateCombo();
                 comboInvoiceID.ItemsSource = clsSearchLogic.GetNumCombo();
+                currDS = ds;
             }
             catch(Exception ex)
             {
@@ -92,6 +97,7 @@ namespace GroupProject.Search
                 string selectedCost = comboCost;
                 DataSet ds = searchLogic.updateDataGrid(selectedNum, selectedDate, selectedCost);
                 datagridInvoices.ItemsSource = ds.Tables[0].DefaultView;
+                currDS = ds;
             }
             catch(Exception ex)
             {
@@ -110,11 +116,10 @@ namespace GroupProject.Search
                 //Get invoice id of the selected row. pass the id to a variable that the main window can access then hide the window
 
                 Main.wndMain wndMain = new Main.wndMain();
-
-                wndMain.GetSelection("5000");
-
-                
-                
+                int rowNum = datagridInvoices.SelectedIndex;
+                clsInvoiceNum clsInvoiceNum = new clsInvoiceNum();
+                clsInvoiceNum.invoiceNum = currDS.Tables[0].Rows[rowNum][0].ToString();
+                wndMain.GetSelection(clsInvoiceNum.invoiceNum);
                 this.Hide();
             }
             catch(Exception ex)
@@ -140,6 +145,7 @@ namespace GroupProject.Search
                 string selectedCost = comboCost;
                 DataSet ds = searchLogic.updateDataGrid(selectedNum, selectedDate, selectedCost);
                 datagridInvoices.ItemsSource = ds.Tables[0].DefaultView;
+                currDS = ds;
             }
             catch(Exception ex)
             {
@@ -165,6 +171,7 @@ namespace GroupProject.Search
                 string selectedNum = comboID;
                 DataSet ds = searchLogic.updateDataGrid(selectedNum, selectedDate, selectedCost);
                 datagridInvoices.ItemsSource = ds.Tables[0].DefaultView;
+                currDS= ds;
             }
             catch(Exception ex)
             {
